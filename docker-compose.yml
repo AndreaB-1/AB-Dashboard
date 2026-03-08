@@ -1,0 +1,59 @@
+# ── AB-Lab Dashboard — docker-compose.yml ────────────────────────────────────
+#
+# Deploy via Portainer → Stacks → Add stack → paste this file
+#
+# The image is built by GitHub Actions and pushed to GHCR.
+# Replace the image tag with the actual GitHub username/org if needed.
+#
+# Ports:
+#   Host 8880 → Container 80   (change left side to whatever suits your setup)
+#
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  ab-dashboard:
+    image: ghcr.io/andreab-1/ab-dashboard:latest   # built by GitHub Actions
+    container_name: ab-dashboard
+    restart: unless-stopped
+
+    ports:
+      - "8880:80"           # ← change 8880 to your preferred host port
+
+    # Read-only filesystem — nothing to write for a static site
+    read_only: true
+    tmpfs:
+      - /tmp                # nginx needs a writable /tmp
+      - /var/cache/nginx    # nginx cache dir
+      - /var/run            # nginx pid file
+
+    # Lightweight resource limits (safe for Raspberry Pi / ARM SBCs)
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 64M
+        reservations:
+          cpus: "0.05"
+          memory: 16M
+
+    # Built-in nginx health-check (also picked up by Portainer)
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"   # auto-update via Watchtower (optional)
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+networks:
+  default:
+    name: ab-lab-net
+    driver: bridge

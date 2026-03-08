@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AB-Lab // Andrea Buono</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d0f14;
+      --bg2:       #13161e;
+      --bg3:       #1a1e28;
+      --border:    rgba(255,255,255,0.07);
+      --text:      #e2e8f0;
+      --muted:     #6b7a99;
+      --accent:    #00e5c3;
+      --accent2:   #3d7fff;
+      --accent3:   #ff6b6b;
+      --accent4:   #f5a623;
+      --card-glow: rgba(0,229,195,0.06);
+      --shadow:    0 4px 24px rgba(0,0,0,0.4);
+      --radius:    14px;
+      --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    [data-theme="light"] {
+      --bg:        #f0f2f7;
+      --bg2:       #ffffff;
+      --bg3:       #e8ecf5;
+      --border:    rgba(0,0,0,0.08);
+      --text:      #1a2035;
+      --muted:     #7a8299;
+      --accent:    #00b89c;
+      --accent2:   #2563eb;
+      --accent3:   #e53e3e;
+      --accent4:   #d97706;
+      --card-glow: rgba(0,184,156,0.05);
+      --shadow:    0 4px 24px rgba(0,0,0,0.1);
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background var(--transition), color var(--transition);
+    }
+
+    body {
+      min-height: 100vh;
+      padding: 24px 28px 40px;
+      background-image: radial-gradient(ellipse 60% 40% at 70% -10%, rgba(0,229,195,0.07) 0%, transparent 60%),
+                        radial-gradient(ellipse 50% 30% at 0% 100%, rgba(61,127,255,0.06) 0%, transparent 60%);
+    }
+
+    [data-theme="light"] body {
+      background-image: radial-gradient(ellipse 60% 40% at 70% -10%, rgba(0,184,156,0.08) 0%, transparent 60%),
+                        radial-gradient(ellipse 50% 30% at 0% 100%, rgba(37,99,235,0.06) 0%, transparent 60%);
+    }
+
+    /* ── GRID NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cpath d='M0 0h40v40H0z' fill='none'/%3E%3Cpath d='M40 0v40M0 40h40' stroke='%23ffffff' stroke-opacity='0.025' stroke-width='0.5'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    [data-theme="light"] body::before {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cpath d='M0 0h40v40H0z' fill='none'/%3E%3Cpath d='M40 0v40M0 40h40' stroke='%23000000' stroke-opacity='0.04' stroke-width='0.5'/%3E%3C/svg%3E");
+    }
+
+    .wrapper { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; }
+
+    /* ── HEADER ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .logo-block { display: flex; flex-direction: column; gap: 2px; }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 2.4rem;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .logo span {
+      color: var(--accent);
+      text-shadow: 0 0 24px rgba(0,229,195,0.5);
+    }
+
+    [data-theme="light"] .logo span { text-shadow: 0 0 16px rgba(0,184,156,0.3); }
+
+    .tagline {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .header-right { display: flex; align-items: center; gap: 16px; }
+
+    #clock {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-align: right;
+      line-height: 1.6;
+    }
+
+    #clock .time {
+      font-size: 1.3rem;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* Theme Toggle */
+    .theme-btn {
+      width: 46px; height: 46px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg2);
+      color: var(--text);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      transition: all var(--transition);
+      box-shadow: var(--shadow);
+    }
+    .theme-btn:hover { border-color: var(--accent); color: var(--accent); transform: scale(1.05); }
+
+    /* ── STATUS BAR ── */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 28px;
+      padding: 10px 16px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      overflow-x: auto;
+      flex-wrap: wrap;
+    }
+
+    .status-item { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+    .status-item + .status-item::before { content: '·'; margin-right: 2px; opacity: 0.3; }
+
+    .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .dot.green  { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+    .dot.yellow { background: #f5a623; box-shadow: 0 0 6px #f5a623; animation-delay: 0.3s; }
+    .dot.red    { background: #ff6b6b; box-shadow: 0 0 6px #ff6b6b; animation-delay: 0.6s; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.5; }
+    }
+
+    /* ── MAIN GRID ── */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 20px;
+    }
+
+    .left-col { display: flex; flex-direction: column; gap: 20px; }
+    .right-col { display: flex; flex-direction: column; gap: 20px; }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      transition: border-color var(--transition), box-shadow var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--card-glow);
+      opacity: 0;
+      transition: opacity var(--transition);
+      pointer-events: none;
+    }
+
+    .card:hover::before { opacity: 1; }
+    .card:hover { border-color: rgba(0,229,195,0.2); box-shadow: var(--shadow), 0 0 0 1px rgba(0,229,195,0.08); }
+
+    .card-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── WEATHER ── */
+    .weather-main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .weather-temp {
+      font-family: 'Syne', sans-serif;
+      font-size: 3.4rem;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .weather-temp sup { font-size: 1.4rem; color: var(--muted); }
+
+    .weather-icon { font-size: 3rem; line-height: 1; }
+
+    .weather-desc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 14px;
+      text-transform: capitalize;
+    }
+
+    .weather-location {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .weather-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .weather-stat {
+      background: var(--bg3);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+
+    .weather-stat .ws-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .weather-stat .ws-val {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    /* ── GREETING ── */
+    .greeting-card .greeting {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .greeting-card .sub {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .greeting-card .sub em { color: var(--accent); font-style: normal; font-weight: 500; }
+
+    /* ── QUICK STATS ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .stat-tile {
+      background: var(--bg3);
+      border-radius: 10px;
+      padding: 14px;
+      border: 1px solid var(--border);
+    }
+
+    .stat-tile .st-icon { font-size: 1.3rem; margin-bottom: 8px; }
+    .stat-tile .st-val { font-family: 'JetBrains Mono', monospace; font-size: 1.15rem; font-weight: 700; color: var(--text); }
+    .stat-tile .st-label { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+    /* ── SERVICES ── */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 12px;
+    }
+
+    .service-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 14px;
+      text-align: center;
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--text);
+      transition: all var(--transition);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .service-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--sc-accent, var(--accent));
+      transform: scaleX(0);
+      transition: transform var(--transition);
+    }
+
+    .service-card:hover {
+      border-color: var(--sc-accent, var(--accent));
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+
+    .service-card:hover::after { transform: scaleX(1); }
+
+    .service-icon {
+      font-size: 1.9rem;
+      width: 52px; height: 52px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 12px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+    }
+
+    .service-name {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .service-status {
+      position: absolute;
+      top: 10px; right: 10px;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+    }
+
+    .service-status.up    { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+    .service-status.down  { background: #ff6b6b; box-shadow: 0 0 6px #ff6b6b; }
+    .service-status.idle  { background: #f5a623; box-shadow: 0 0 6px #f5a623; }
+
+    .service-port {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+    }
+
+    /* ── QUICK LINKS ── */
+    .links-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .link-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 0.84rem;
+      transition: all var(--transition);
+    }
+
+    .link-item:hover { border-color: var(--accent2); color: var(--accent2); padding-left: 18px; }
+    .link-item .li-icon { font-size: 1rem; flex-shrink: 0; }
+    .link-item .li-desc { font-size: 0.7rem; color: var(--muted); }
+
+    /* ── NETWORK ── */
+    .network-row {
+      display: flex; flex-direction: column; gap: 10px;
+    }
+
+    .net-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: var(--bg3);
+      border-radius: 9px;
+      border: 1px solid var(--border);
+    }
+
+    .net-item-left { display: flex; align-items: center; gap: 10px; }
+    .net-item-icon { font-size: 1.1rem; }
+
+    .net-item-name {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .net-item-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--muted);
+    }
+
+    .net-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-weight: 500;
+    }
+
+    .net-badge.up { background: rgba(34,197,94,0.15); color: #22c55e; }
+    .net-badge.na { background: rgba(107,122,153,0.15); color: var(--muted); }
+
+    /* ── BOTTOM STRIP ── */
+    footer {
+      margin-top: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.63rem;
+      color: var(--muted);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    footer span em { color: var(--accent); font-style: normal; }
+
+    /* ── SECTION TITLE ── */
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title .badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(0,229,195,0.12);
+      color: var(--accent);
+      letter-spacing: 0.06em;
+    }
+
+    /* ── MEDIA QUERIES ── */
+    @media (max-width: 900px) {
+      .main-grid { grid-template-columns: 1fr; }
+      body { padding: 16px; }
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card { animation: fadeInUp 0.45s ease both; }
+    .card:nth-child(1) { animation-delay: 0.05s; }
+    .card:nth-child(2) { animation-delay: 0.10s; }
+    .card:nth-child(3) { animation-delay: 0.15s; }
+    .card:nth-child(4) { animation-delay: 0.20s; }
+
+    header { animation: fadeInUp 0.4s ease both; }
+    .status-bar { animation: fadeInUp 0.4s ease 0.08s both; }
+
+    /* Loading spinner for weather */
+    .loading {
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; color: var(--muted);
+      font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+      padding: 20px 0;
+    }
+
+    .spinner {
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo-block">
+      <div class="logo">AB<span>-Lab</span></div>
+      <div class="tagline">Andrea Buono // Homelab Dashboard</div>
+    </div>
+    <div class="header-right">
+      <div id="clock">
+        <div class="time" id="time">--:--:--</div>
+        <div id="date">--- -- ----</div>
+      </div>
+      <button class="theme-btn" id="themeToggle" title="Toggle theme" aria-label="Toggle theme">🌙</button>
+    </div>
+  </header>
+
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    <div class="status-item"><span class="dot green"></span> Network: Online</div>
+    <div class="status-item"><span class="dot green"></span> Proxmox: Running</div>
+    <div class="status-item"><span class="dot green"></span> Docker: 12 containers</div>
+    <div class="status-item"><span class="dot green"></span> Pi-hole: Active</div>
+    <div class="status-item"><span class="dot yellow"></span> Backup: Scheduled</div>
+    <div class="status-item"><span class="dot green"></span> VPN: Connected</div>
+  </div>
+
+  <div class="main-grid">
+
+    <!-- LEFT COLUMN -->
+    <div class="left-col">
+
+      <!-- GREETING -->
+      <div class="card greeting-card">
+        <div class="card-label">// welcome back</div>
+        <div class="greeting">Hello, Andrea 👋</div>
+        <div class="sub">Your lab is <em>operational</em>. All core services running smoothly.</div>
+        <div class="stats-row">
+          <div class="stat-tile">
+            <div class="st-icon">🖥️</div>
+            <div class="st-val">3</div>
+            <div class="st-label">Active Nodes</div>
+          </div>
+          <div class="stat-tile">
+            <div class="st-icon">🐋</div>
+            <div class="st-val">12</div>
+            <div class="st-label">Containers</div>
+          </div>
+          <div class="stat-tile">
+            <div class="st-icon">💾</div>
+            <div class="st-val">4.2 TB</div>
+            <div class="st-label">Storage Used</div>
+          </div>
+          <div class="stat-tile">
+            <div class="st-icon">⬆️</div>
+            <div class="st-val">47 d</div>
+            <div class="st-label">Uptime</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WEATHER -->
+      <div class="card" id="weather-card">
+        <div class="card-label">// weather</div>
+        <div id="weather-content">
+          <div class="loading"><div class="spinner"></div> Fetching weather…</div>
+        </div>
+      </div>
+
+      <!-- NETWORK -->
+      <div class="card">
+        <div class="card-label">// network</div>
+        <div class="network-row">
+          <div class="net-item">
+            <div class="net-item-left">
+              <div class="net-item-icon">🌐</div>
+              <div>
+                <div class="net-item-name">ISP — Fiber</div>
+                <div class="net-item-sub">WAN • 1 Gbps</div>
+              </div>
+            </div>
+            <span class="net-badge up">UP</span>
+          </div>
+          <div class="net-item">
+            <div class="net-item-left">
+              <div class="net-item-icon">📡</div>
+              <div>
+                <div class="net-item-name">LAN — 192.168.1.0/24</div>
+                <div class="net-item-sub">Switch • 1 Gbps</div>
+              </div>
+            </div>
+            <span class="net-badge up">UP</span>
+          </div>
+          <div class="net-item">
+            <div class="net-item-left">
+              <div class="net-item-icon">🔒</div>
+              <div>
+                <div class="net-item-name">WireGuard VPN</div>
+                <div class="net-item-sub">10.0.0.0/24 • tun0</div>
+              </div>
+            </div>
+            <span class="net-badge up">UP</span>
+          </div>
+          <div class="net-item">
+            <div class="net-item-left">
+              <div class="net-item-icon">🛡️</div>
+              <div>
+                <div class="net-item-name">Pi-hole DNS</div>
+                <div class="net-item-sub">192.168.1.5 • Blocking ads</div>
+              </div>
+            </div>
+            <span class="net-badge up">UP</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="right-col">
+
+      <!-- SERVICES -->
+      <div class="card">
+        <div class="section-title">Services <span class="badge">SHORTCUTS</span></div>
+
+        <div class="services-grid">
+
+          <a class="service-card" href="http://192.168.1.10:8006" target="_blank" style="--sc-accent:#e06c28">
+            <span class="service-status up"></span>
+            <div class="service-icon">🖥️</div>
+            <div class="service-name">Proxmox</div>
+            <div class="service-port">:8006</div>
+          </a>
+
+          <a class="service-card" href="http://192.168.1.10:9000" target="_blank" style="--sc-accent:#1dacd6">
+            <span class="service-status up"></span>
+            <div class="service-icon">🐋</div>
+            <div class="service-name">Portainer</div>
+            <div class="service-port">:9000</div>
+          </a>
+
+          <a class="service-card" href="http://192.168.1.20:8123" target="_blank" style="--sc-accent:#41bdf5">
+            <span class="service-status up"></span>
+            <div class="service-icon">🏠</div>
+            <div class="service-name">Home Assistant</div>
+            <div class="service-port">:8123</div>
+          </a>
+
+          <a class="service-card" href="http://192.168.1.20:3000" target="_blank" style="--sc-accent:#f46800">
+            <span class="service-status up"></span>
+            <div class="service-icon">📊</div>
+            <div class="service-name">Grafana</div>
+            <div class="service-port">:3000</div>
+          </a>
+
+          <a class="service-card" href="http://192.168.1.20:8080" target="_blank" style="--sc-accent:#00b4d8">
+            <span class="service-status up"></span>
+            <div class="service-icon">☁️</div>
+            <div class="service-name">Nextcloud</div>
+            <div class="service-port">:8080</div>
+          </a>
+
+          <a class="service-card" href="http://192.168.1.20:32400" target="_blank" style="--sc-accent:#e5a00d">
+            <span class="service-status up"></span>
+            <div class="service-icon">🎬</div>
+            <div class="service-name">Plex</div>
+            <div class="service-port">:32400</div>
+          </a>
+
+          <a class="service-card" href="http://192.168.1.5/admin" target="_blank" style="--sc-accent:#00d084">
+            <span class="service-status up"></span>
+            <div class="service-icon">🛡️</div>
+            <div class="service-name">Pi-hole</div>
+            <div class="service-port">/admin</div>
+          </a>
+
+          <a class="service-card" href="http://192.168.1.20:81" target="_blank" style="--sc-accent:#7c3aed">
+            <span class="service-status up"></span>
+            <div class="service-icon">🔀</div>
+            <div class="service-name">Nginx Proxy</div>
+            <div class="service-port">:81</div>
+          </a>
+
+          <a class="service-card" href="http://192.168.1.20:8989" target="_blank" style="--sc-accent:#35c5f4">
+            <span class="service-status idle"></span>
+            <div class="service-icon">📺</div>
+            <div class="service-name">Sonarr</div>
+            <div class="service-port">:8989</div>
+          </a>
+
+          <a class="service-card" href="http://192.168.1.20:7878" target="_blank" style="--sc-accent:#ffd166">
+            <span class="service-status idle"></span>
+            <div class="service-icon">🎥</div>
+            <div class="service-name">Radarr</div>
+            <div class="service-port">:7878</div>
+          </a>
+
+          <a class="service-card" href="http://192.168.1.20:9091" target="_blank" style="--sc-accent:#ff6b6b">
+            <span class="service-status up"></span>
+            <div class="service-icon">🔽</div>
+            <div class="service-name">Transmission</div>
+            <div class="service-port">:9091</div>
+          </a>
+
+          <a class="service-card" href="http://192.168.1.20:5055" target="_blank" style="--sc-accent:#e97ef5">
+            <span class="service-status up"></span>
+            <div class="service-icon">🔍</div>
+            <div class="service-name">Overseerr</div>
+            <div class="service-port">:5055</div>
+          </a>
+
+          <a class="service-card" href="http://192.168.1.20:8082" target="_blank" style="--sc-accent:#3ddc84">
+            <span class="service-status up"></span>
+            <div class="service-icon">📖</div>
+            <div class="service-name">Calibre-Web</div>
+            <div class="service-port">:8082</div>
+          </a>
+
+          <a class="service-card" href="http://192.168.1.30:22" target="_blank" style="--sc-accent:#00e5c3">
+            <span class="service-status up"></span>
+            <div class="service-icon">💻</div>
+            <div class="service-name">SSH Console</div>
+            <div class="service-port">:22</div>
+          </a>
+
+          <a class="service-card" href="http://192.168.1.20:8443" target="_blank" style="--sc-accent:#3d7fff">
+            <span class="service-status up"></span>
+            <div class="service-icon">🔑</div>
+            <div class="service-name">Vaultwarden</div>
+            <div class="service-port">:8443</div>
+          </a>
+
+          <a class="service-card" href="http://192.168.1.20:8090" target="_blank" style="--sc-accent:#ff9a3c">
+            <span class="service-status up"></span>
+            <div class="service-icon">📡</div>
+            <div class="service-name">Uptime Kuma</div>
+            <div class="service-port">:8090</div>
+          </a>
+
+        </div>
+      </div>
+
+      <!-- QUICK LINKS -->
+      <div class="card">
+        <div class="section-title">Quick Links <span class="badge">EXTERNAL</span></div>
+        <div class="links-list">
+          <a class="link-item" href="https://github.com" target="_blank">
+            <span class="li-icon">🐙</span>
+            <div>
+              <div>GitHub</div>
+              <div class="li-desc">Repositories &amp; projects</div>
+            </div>
+          </a>
+          <a class="link-item" href="https://cloudflare.com" target="_blank">
+            <span class="li-icon">🟠</span>
+            <div>
+              <div>Cloudflare</div>
+              <div class="li-desc">DNS management &amp; tunnels</div>
+            </div>
+          </a>
+          <a class="link-item" href="https://hub.docker.com" target="_blank">
+            <span class="li-icon">🐋</span>
+            <div>
+              <div>Docker Hub</div>
+              <div class="li-desc">Container images registry</div>
+            </div>
+          </a>
+          <a class="link-item" href="https://docs.linuxserver.io" target="_blank">
+            <span class="li-icon">🐧</span>
+            <div>
+              <div>LinuxServer.io Docs</div>
+              <div class="li-desc">Container documentation</div>
+            </div>
+          </a>
+          <a class="link-item" href="https://reddit.com/r/homelab" target="_blank">
+            <span class="li-icon">🔴</span>
+            <div>
+              <div>r/homelab</div>
+              <div class="li-desc">Community &amp; inspiration</div>
+            </div>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <span>AB-Lab v1.0 // <em>Andrea Buono</em></span>
+    <span id="footer-time"></span>
+    <span>Static Dashboard — Editable mode <em>coming soon</em></span>
+  </footer>
+
+</div>
+
+<script>
+// ── THEME TOGGLE ──────────────────────────────────────
+const html = document.documentElement;
+const btn  = document.getElementById('themeToggle');
+
+function setTheme(t) {
+  html.setAttribute('data-theme', t);
+  btn.textContent = t === 'dark' ? '🌙' : '☀️';
+  localStorage.setItem('ab-lab-theme', t);
+}
+
+btn.addEventListener('click', () => {
+  setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+});
+
+// load saved preference
+const saved = localStorage.getItem('ab-lab-theme');
+if (saved) setTheme(saved);
+else if (window.matchMedia('(prefers-color-scheme: light)').matches) setTheme('light');
+
+// ── CLOCK ──────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  const t = now.toLocaleTimeString('it-IT', { hour12: false });
+  const d = now.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+  document.getElementById('time').textContent = t;
+  document.getElementById('date').textContent = d;
+  document.getElementById('footer-time').textContent = 'Last updated: ' + t;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// ── WEATHER (Open-Meteo — no API key needed) ───────────
+const CITY   = 'Rome';
+const LAT    = 41.9028;
+const LON    = 12.4964;
+
+const WMO_CODES = {
+  0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',
+  45:'Foggy',48:'Icy fog',
+  51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',
+  61:'Light rain',63:'Rain',65:'Heavy rain',
+  71:'Light snow',73:'Snow',75:'Heavy snow',
+  80:'Showers',81:'Heavy showers',82:'Violent showers',
+  95:'Thunderstorm',96:'Thunderstorm+hail',99:'Thunderstorm+heavy hail'
+};
+
+const WMO_ICON = {
+  0:'☀️',1:'🌤️',2:'⛅',3:'☁️',
+  45:'🌫️',48:'🌫️',
+  51:'🌦️',53:'🌧️',55:'🌧️',
+  61:'🌧️',63:'🌧️',65:'⛈️',
+  71:'🌨️',73:'❄️',75:'❄️',
+  80:'🌦️',81:'🌧️',82:'⛈️',
+  95:'⛈️',96:'⛈️',99:'⛈️'
+};
+
+async function loadWeather() {
+  const el = document.getElementById('weather-content');
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}`
+      + `&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weathercode,apparent_temperature`
+      + `&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1`;
+    const res  = await fetch(url);
+    const data = await res.json();
+    const c    = data.current;
+    const code = c.weathercode;
+    const temp = Math.round(c.temperature_2m);
+    const feel = Math.round(c.apparent_temperature);
+    const hum  = c.relative_humidity_2m;
+    const wind = Math.round(c.wind_speed_10m);
+    const desc = WMO_CODES[code] || 'Unknown';
+    const icon = WMO_ICON[code] || '🌡️';
+    const tmax = Math.round(data.daily.temperature_2m_max[0]);
+    const tmin = Math.round(data.daily.temperature_2m_min[0]);
+
+    el.innerHTML = `
+      <div class="weather-main">
+        <div>
+          <div class="weather-temp">${temp}<sup>°C</sup></div>
+          <div class="weather-desc">${desc}</div>
+        </div>
+        <div class="weather-icon">${icon}</div>
+      </div>
+      <div class="weather-location">📍 ${CITY}, IT</div>
+      <div class="weather-grid">
+        <div class="weather-stat">
+          <div class="ws-label">Feels Like</div>
+          <div class="ws-val">${feel}°C</div>
+        </div>
+        <div class="weather-stat">
+          <div class="ws-label">Humidity</div>
+          <div class="ws-val">${hum}%</div>
+        </div>
+        <div class="weather-stat">
+          <div class="ws-label">Wind</div>
+          <div class="ws-val">${wind} km/h</div>
+        </div>
+        <div class="weather-stat">
+          <div class="ws-label">Today H/L</div>
+          <div class="ws-val">${tmax}° / ${tmin}°</div>
+        </div>
+      </div>
+    `;
+  } catch(e) {
+    el.innerHTML = `<div class="loading" style="color:var(--muted)">⚠️ Weather unavailable</div>`;
+  }
+}
+
+loadWeather();
+</script>
+</body>
+</html>
